@@ -23,7 +23,7 @@ $ go run main.go
 ## Usage
 
 - `-url` - The initial URL to start the crawler. 
-  - default: `https://raw.githubusercontent.com/fastfire/deepdarkCTI/main/forum.md`
+  - default: `https://github.com/fastfire/deepdarkCTI/blob/main/forum.md`
   
 - `-shost` - The SOCKS5 host.
   - default: `localhost`
