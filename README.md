@@ -34,6 +34,6 @@ the onion cralwer - https://github.com/aedenmurray/toc
 
 ## Usage
 
-- `-url` - The initial URL to start the crawler: _`https://github.com/fastfire/deepdarkCTI/blob/main/forum.md`_
+- `-url` - The initial URL to crawl: _`https://github.com/fastfire/deepdarkCTI/blob/main/forum.md`_
 - `-shost` - The SOCKS5 host: _`localhost`_
 - `-sport` - The SOCKS5 port: _`9050`_
