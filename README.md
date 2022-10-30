@@ -15,8 +15,6 @@ $ brew services start tor
 
 ## Getting Started
 
-By default, `toc` will print out the `depth`, `url`, & `title` of any sites that it sucessfully visits.
-
 ```sh
 $ git clone https://github.com/aedenmurray/toc && cd toc
 $ go run main.go 
@@ -31,6 +29,13 @@ the onion cralwer - https://github.com/aedenmurray/toc
 
 ...etc
 ```
+
+By default, `toc` will print out the `depth`, `url`, & `title` of any sites that it sucessfully visits.
+
+However, you may extend this functionality by utilizing the `OnRequest` & `OnResponse` hooks.
+
+Check out [`main.go`](https://github.com/aedenmurray/toc/blob/main/main.go) for an example.
+
 
 ## Usage
 
