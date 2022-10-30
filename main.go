@@ -18,7 +18,7 @@ the onion cralwer - https://github.com/aedenmurray/toc
 func main() {
 	fmt.Println(banner)
 
-	initialURL := flag.String("url", "https://raw.githubusercontent.com/fastfire/deepdarkCTI/main/forum.md", "Initial URL")
+	initialURL := flag.String("url", "https://github.com/fastfire/deepdarkCTI/blob/main/forum.md", "Initial URL")
 	socksHost := flag.String("shost", "127.0.0.1", "TOR SOCKS Host")
 	socksPort := flag.String("sport", "9050", "TOR SOCKS Port")
 	flag.Parse()
