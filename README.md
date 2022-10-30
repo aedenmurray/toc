@@ -22,6 +22,11 @@ $ go run main.go
 
 ## Usage
 
-- `-url` - The initial URL to start the crawler. (default: `https://raw.githubusercontent.com/fastfire/deepdarkCTI/main/forum.md`)
-- `-shost` - The SOCKS5 host (default: `localhost`)
-- `-sport` - The SOCKS5 port (default: `9050`)
+- `-url` - The initial URL to start the crawler. 
+  - default: `https://raw.githubusercontent.com/fastfire/deepdarkCTI/main/forum.md`
+  
+- `-shost` - The SOCKS5 host.
+  - default: `localhost`
+  
+- `-sport` - The SOCKS5 port.
+  - default: `9050`
