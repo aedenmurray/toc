@@ -17,7 +17,7 @@ the onion cralwer - https://github.com/aedenmurray/toc
 func main() {
 	fmt.Println(banner)
 
-	initialURL := flag.String("url", "https://github.com/fastfire/deepdarkCTI/blob/main/forum.md", "Initial URL")
+	URL := flag.String("url", "https://github.com/fastfire/deepdarkCTI/blob/main/forum.md", "Initial URL")
 	socksHost := flag.String("shost", "127.0.0.1", "TOR SOCKS Host")
 	socksPort := flag.String("sport", "9050", "TOR SOCKS Port")
 	flag.Parse()
@@ -28,12 +28,15 @@ func main() {
 		return
 	}
 
-	var waitGroup sync.WaitGroup
+	waitGroup := sync.WaitGroup{}
+	hooks := new(tor.Hooks)
+
 	node := &tor.Node{
-		URL:       *initialURL,
+		URL:       *URL,
+		Ref: 	   "toc",
 		Client:    client,
 		WaitGroup: &waitGroup,
-		Hooks:     &tor.Hooks{},
+		Hooks:     hooks,
 		Depth:     0,
 	}
 
