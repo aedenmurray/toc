@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"flag"
 	"fmt"
 	"sync"
@@ -38,8 +37,8 @@ func main() {
 		Depth:     0,
 	}
 
-	node.OnResponse(func(node *tor.Node, bodyBuffer *bytes.Buffer) {
-		title := "(" + parse.Title(bodyBuffer) + ")"
+	node.OnResponse(func(node *tor.Node) {
+		title := "(" + parse.Title(node.Buffer) + ")"
 		depth := fmt.Sprintf("%-4d", node.Depth)
 		fmt.Println(depth, node.URL, title)
 	})

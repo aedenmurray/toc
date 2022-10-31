@@ -11,20 +11,29 @@ import (
 
 var visitedURLs = state.Create()
 
+type OnRequest func(node *Node)
+type OnResponse func(node *Node)
+
+type Hooks struct {
+	OnRequest  OnRequest
+	OnResponse OnResponse
+}
+
 type Node struct {
 	URL       string
 	Client    *Client
+	Buffer    *bytes.Buffer
 	WaitGroup *sync.WaitGroup
 	Hooks     *Hooks
 	Depth     uint
 }
 
-func (node *Node) OnRequest(handler OnRequest) {
-	node.Hooks.OnRequest = handler
+func (node *Node) OnRequest(hook OnRequest) {
+	node.Hooks.OnRequest = hook
 }
 
-func (node *Node) OnResponse(handler OnResponse) {
-	node.Hooks.OnResponse = handler
+func (node *Node) OnResponse(hook OnResponse) {
+	node.Hooks.OnResponse = hook
 }
 
 func (node *Node) Crawl() {
@@ -48,8 +57,8 @@ func (node *Node) Crawl() {
 			return
 		}
 
-		var bodyBuffer bytes.Buffer
-		teeReader := io.TeeReader(response.Body, &bodyBuffer)
+		node.Buffer = new(bytes.Buffer)
+		teeReader := io.TeeReader(response.Body, node.Buffer)
 
 		linksChannel := make(chan string)
 		go parse.Links(teeReader, linksChannel)
@@ -67,7 +76,9 @@ func (node *Node) Crawl() {
 		}
 
 		if node.Hooks.OnResponse != nil {
-			node.Hooks.OnResponse(node, &bodyBuffer)
+			node.Hooks.OnResponse(node)
 		}
 	}()
 }
+
+
