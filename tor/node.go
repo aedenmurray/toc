@@ -27,6 +27,7 @@ type Node struct {
 	WaitGroup *sync.WaitGroup
 	Hooks     *Hooks
 	Depth     uint
+	Skip      bool
 }
 
 func (node *Node) OnRequest(hook OnRequest) {
@@ -51,6 +52,10 @@ func (node *Node) Crawl() {
 
 		if node.Hooks.OnRequest != nil {
 			node.Hooks.OnRequest(node)
+		}
+
+		if node.Skip {
+			return
 		}
 
 		response, err := node.Client.Get(node.URL)
