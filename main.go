@@ -33,7 +33,6 @@ func main() {
 
 	node := &tor.Node{
 		URL:       *URL,
-		Ref: 	   "toc",
 		Client:    client,
 		WaitGroup: &waitGroup,
 		Hooks:     hooks,
