@@ -9,7 +9,7 @@ import (
 	"github.com/aedenmurray/toc/state"
 )
 
-var visitedURLs = state.Create()
+var visited = state.Create()
 
 type OnRequest func(node *Node)
 type OnResponse func(node *Node)
@@ -39,24 +39,23 @@ func (node *Node) OnResponse(hook OnResponse) {
 }
 
 func (node *Node) Crawl() {
-	hasVisited := visitedURLs.Exists(node.URL)
-	if hasVisited {
+	if visited.Exists(node.URL) {
+		node.Skip = true
+	}
+
+	if node.Hooks.OnRequest != nil {
+		node.Hooks.OnRequest(node)
+	}
+
+	if node.Skip {
 		return
 	}
 
-	visitedURLs.Store(node.URL)
+	visited.Store(node.URL)
 	node.WaitGroup.Add(1)
 
 	go func() {
 		defer node.WaitGroup.Done()
-
-		if node.Hooks.OnRequest != nil {
-			node.Hooks.OnRequest(node)
-		}
-
-		if node.Skip {
-			return
-		}
 
 		response, err := node.Client.Get(node.URL)
 		if err != nil {
