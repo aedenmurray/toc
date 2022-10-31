@@ -40,7 +40,7 @@ func main() {
 	node.OnResponse(func(node *tor.Node) {
 		title := "(" + parse.Title(node.Buffer) + ")"
 		depth := fmt.Sprintf("%-4d", node.Depth)
-		fmt.Println(depth, node.URL, title)
+		fmt.Println(depth, node.Ref, "->", node.URL, title)
 	})
 
 	node.Crawl()

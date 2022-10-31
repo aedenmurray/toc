@@ -21,6 +21,7 @@ type Hooks struct {
 
 type Node struct {
 	URL       string
+	Ref       string
 	Client    *Client
 	Buffer    *bytes.Buffer
 	WaitGroup *sync.WaitGroup
@@ -66,6 +67,7 @@ func (node *Node) Crawl() {
 			childDepth := node.Depth + 1
 			childNode := &Node{
 				URL:       link,
+				Ref:       node.URL,
 				Client:    node.Client,
 				WaitGroup: node.WaitGroup,
 				Hooks:     node.Hooks,
@@ -80,5 +82,3 @@ func (node *Node) Crawl() {
 		}
 	}()
 }
-
-
