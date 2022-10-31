@@ -5,27 +5,27 @@ import (
 )
 
 type State struct {
-	visitedURLs map[string]struct{}
+	internal map[string]struct{}
 	sync.RWMutex
 }
 
-func (state *State) UpdateVisited(key string) {
+func (state *State) Store(key string) {
 	state.Lock()
 	defer state.Unlock()
 
-	state.visitedURLs[key] = struct{}{}
+	state.internal[key] = struct{}{}
 }
 
-func (state *State) HasVisited(key string) bool {
+func (state *State) Exists(key string) bool {
 	state.RLock()
 	defer state.RUnlock()
 
-	_, exists := state.visitedURLs[key]
+	_, exists := state.internal[key]
 	return exists
 }
 
 func Create() *State {
 	return &State{
-		visitedURLs: make(map[string]struct{}),
+		internal: make(map[string]struct{}),
 	}
 }

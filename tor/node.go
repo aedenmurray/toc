@@ -38,12 +38,12 @@ func (node *Node) OnResponse(hook OnResponse) {
 }
 
 func (node *Node) Crawl() {
-	hasVisited := visitedURLs.HasVisited(node.URL)
+	hasVisited := visitedURLs.Exists(node.URL)
 	if hasVisited {
 		return
 	}
 
-	visitedURLs.UpdateVisited(node.URL)
+	visitedURLs.Store(node.URL)
 	node.WaitGroup.Add(1)
 
 	go func() {
