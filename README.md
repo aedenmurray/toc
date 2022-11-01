@@ -19,13 +19,10 @@ $ brew services start tor
 $ git clone https://github.com/aedenmurray/toc && cd toc
 $ go run main.go 
 
-the onion cralwer - https://github.com/aedenmurray/toc
-------------------------------------------------------
-
-0    https://github.com/fastfire/deepdarkCTI/blob/main/forum.md (deepdarkCTI/forum.md at main · fastfire/deepdarkCTI · GitHub)
-1    http://xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.onion (Threat Actors | Onion Forums)
-1    http://xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.onion/login (Forum)
-1    http://xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.onion (CryptBB)
+0 https://github.com/fastfire/deepdarkCTI/blob/main/forum.md (deepdarkCTI/forum.md at main · fastfire/deepdarkCTI · GitHub)
+1 http://xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.onion (Threat Actors | Onion Forums)
+1 http://xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.onion/login (Forum)
+1 http://xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.onion (CryptBB)
 
 ...etc
 ```
