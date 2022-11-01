@@ -39,12 +39,12 @@ func (node *Node) OnResponse(hook OnResponse) {
 }
 
 func (node *Node) Crawl() {
-	if node.Hooks.OnRequest != nil {
-		node.Hooks.OnRequest(node)
+	if visited.Exists(node.URL) {
+		return
 	}
 
-	if visited.Exists(node.URL) {
-		node.Skip = true
+	if node.Hooks.OnRequest != nil {
+		node.Hooks.OnRequest(node)
 	}
 
 	if node.Skip {
