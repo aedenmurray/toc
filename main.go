@@ -9,15 +9,8 @@ import (
 	"github.com/aedenmurray/toc/tor"
 )
 
-var banner string = `
-the onion cralwer - https://github.com/aedenmurray/toc
-------------------------------------------------------
-`
-
 func main() {
-	fmt.Println(banner)
-
-	URL := flag.String("url", "https://github.com/fastfire/deepdarkCTI/blob/main/forum.md", "Initial URL")
+	url := flag.String("url", "https://github.com/fastfire/deepdarkCTI/blob/main/forum.md", "Initial URL")
 	socksHost := flag.String("shost", "127.0.0.1", "TOR SOCKS Host")
 	socksPort := flag.String("sport", "9050", "TOR SOCKS Port")
 	flag.Parse()
@@ -32,7 +25,7 @@ func main() {
 	hooks := new(tor.Hooks)
 
 	node := &tor.Node{
-		URL:       *URL,
+		URL:       *url,
 		Client:    client,
 		WaitGroup: &waitGroup,
 		Hooks:     hooks,
@@ -41,8 +34,7 @@ func main() {
 
 	node.OnResponse(func(node *tor.Node) {
 		title := "(" + parse.Title(node.Buffer) + ")"
-		depth := fmt.Sprintf("%-4d", node.Depth)
-		fmt.Println(depth, node.URL, title)
+		fmt.Println(node.Depth, node.URL, title)
 	})
 
 	node.Crawl()
