@@ -37,6 +37,6 @@ Check out [`main.go`](https://github.com/aedenmurray/toc/blob/main/main.go) for 
 ## Usage
 
 - `-url` - Initial URL to crawl: _`https://github.com/fastfire/deepdarkCTI/blob/main/forum.md`_
-- `-skip` - File containing list of files to skip. Separated by a newline.
+- `-skip` - File containing list of domains to skip. Separated by a newline.
 - `-shost` - The SOCKS5 host: _`localhost`_
 - `-sport` - The SOCKS5 port: _`9050`_
