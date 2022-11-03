@@ -66,7 +66,8 @@ func (node *Node) Crawl() {
 		teeReader := io.TeeReader(response.Body, node.Buffer)
 
 		linksChannel := make(chan string)
-		go parse.Links(teeReader, linksChannel)
+		go parse.Links(node.URL, teeReader, linksChannel)
+
 		for link := range linksChannel {
 			childDepth := node.Depth + 1
 			childNode := &Node{

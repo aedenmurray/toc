@@ -24,10 +24,16 @@ func IsImage(link string) bool {
 	return false
 }
 
-func Links(body io.Reader, channel chan<- string) {
-	tokenizer := html.NewTokenizer(body)
+func Links(nodeURL string, body io.Reader, channel chan<- string) {
 	defer close(channel)
 
+	isOnionNode := OnionURLWithSchemeReg.MatchString(nodeURL)
+	parsedNodeURL, err := url.Parse(nodeURL)
+	if err != nil {
+		return
+	}
+
+	tokenizer := html.NewTokenizer(body)
 	sendToChannel := func(link string) {
 		if IsImage(link) {
 			return
@@ -53,12 +59,21 @@ func Links(body io.Reader, channel chan<- string) {
 					continue
 				}
 
-				isOnionURL := OnionURLWithSchemeReg.MatchString(attribute.Val)
-				if !isOnionURL {
+				href := attribute.Val
+				isOnionURL := OnionURLWithSchemeReg.MatchString(href)
+				isAbsoluteURL := strings.Contains(href, "http://") || strings.Contains(href, "https://")
+				var toParse string
+
+				if isOnionURL && isAbsoluteURL {
+					toParse = href
+				} else if isOnionNode && !isAbsoluteURL {
+					hostWithScheme := parsedNodeURL.Scheme + "://" + parsedNodeURL.Host
+					toParse = hostWithScheme + href
+				} else {
 					continue
 				}
 
-				parsedURL, err := url.Parse(attribute.Val)
+				parsedURL, err := url.Parse(toParse)
 				if err != nil {
 					continue
 				}
