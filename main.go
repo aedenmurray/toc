@@ -43,14 +43,14 @@ func main() {
 		}
 	})()
 
-	hooks := new(tor.Hooks)
-	waitGroup := sync.WaitGroup{}
-
 	client, err := tor.CreateClient(*socksHost, *socksPort)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
+
+	hooks := new(tor.Hooks)
+	waitGroup := sync.WaitGroup{}
 
 	node := &tor.Node{
 		URL:       *URL,
