@@ -43,19 +43,19 @@ func (node *Node) Crawl() {
 		return
 	}
 
-	if node.Hooks.OnRequest != nil {
-		node.Hooks.OnRequest(node)
-	}
-
-	if node.Skip {
-		return
-	}
-
 	visited.Store(node.URL)
 	node.WaitGroup.Add(1)
 
 	go func() {
 		defer node.WaitGroup.Done()
+
+		if node.Hooks.OnRequest != nil {
+			node.Hooks.OnRequest(node)
+		}
+	
+		if node.Skip {
+			return
+		}
 
 		response, err := node.Client.Get(node.URL)
 		if err != nil {
