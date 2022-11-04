@@ -15,6 +15,8 @@ import (
 	"github.com/aedenmurray/toc/tor"
 )
 
+var domainsToSkip *state.State = state.Create()
+
 func main() {
 	URL := flag.String("url", "https://github.com/fastfire/deepdarkCTI/blob/main/forum.md", "Initial URL")
 	skip := flag.String("skip", "", "File of domains to be skipped, separated by newlines")
@@ -22,29 +24,33 @@ func main() {
 	socksPort := flag.String("sport", "9050", "TOR SOCKS Port")
 	flag.Parse()
 
-	toSkip := state.Create()
-	if *skip != "" {
+	(func() {
+		if *skip == "" {
+			return
+		}
+	
 		file, err := os.Open(*skip)
 		if err != nil {
 			log.Fatal(err)
 		}
-
+	
 		defer file.Close()
 		scanner := bufio.NewScanner(file)
 		for scanner.Scan() {
 			domain := scanner.Text()
-			toSkip.Store(domain)
-		}	
-	}
+			domainName := strings.Split(domain, ".")[0]
+			domainsToSkip.Store(domainName)
+		}
+	})()
+
+	hooks := new(tor.Hooks)
+	waitGroup := sync.WaitGroup{}
 
 	client, err := tor.CreateClient(*socksHost, *socksPort)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-
-	waitGroup := sync.WaitGroup{}
-	hooks := new(tor.Hooks)
 
 	node := &tor.Node{
 		URL:       *URL,
@@ -54,7 +60,7 @@ func main() {
 		Depth:     0,
 	}
 
-	node.OnRequest(func (node *tor.Node) {
+	node.OnRequest(func(node *tor.Node) {
 		if *skip == "" {
 			return
 		}
@@ -64,12 +70,10 @@ func main() {
 			return
 		}
 
-		domain := (func() string {
-			parts := strings.Split(parsed.Hostname(), ".")
-			return fmt.Sprintf("%s.%s", parts[len(parts) - 2], parts[len(parts) - 1])
-		})()
+		splitDomain := strings.Split(parsed.Hostname(), ".")
+		domainName := splitDomain[len(splitDomain)-2]
 
-		if toSkip.Exists(domain) {
+		if domainsToSkip.Exists(domainName) {
 			node.Skip = true
 		}
 	})
