@@ -13,7 +13,7 @@ import (
 var OnionURLWithSchemeReg *regexp.Regexp = regexp.MustCompile(`(^http://)\b[1-7a-z]{56}\.onion\b`)
 var OnionURLReg *regexp.Regexp = regexp.MustCompile(`\b[1-7a-z]{56}\.onion\b`)
 
-func ShouldSkipBasedOnExtension(link string) bool {
+func skipBasedOnSuffix(link string) bool {
 	extensions := []string{".png", ".jpg", ".jpeg", ".gif", ".mp4", ".mp3", ".bmp"}
 	for _, extension := range extensions {
 		if strings.HasSuffix(link, extension) {
@@ -29,7 +29,7 @@ func Links(nodeURL string, nodeBody *[]byte, links chan<- string) {
 	defer close(links);
 
 	send := func(link string) {
-		if ShouldSkipBasedOnExtension(link) {
+		if skipBasedOnSuffix(link) {
 			return
 		}
 
@@ -71,7 +71,7 @@ func Links(nodeURL string, nodeBody *[]byte, links chan<- string) {
 		}
 
 		for href := range hrefs {
-			isAbsoluteRef := strings.Contains(href, "//")
+			isAbsoluteRef := strings.HasPrefix(href, "http://")
 	
 			if isAbsoluteRef {
 				if !OnionURLWithSchemeReg.MatchString(href) {
@@ -81,12 +81,12 @@ func Links(nodeURL string, nodeBody *[]byte, links chan<- string) {
 				send(href)
 				continue
 			}
-	
-			if !OnionURLReg.MatchString(nodeURLParsed.Host) {
+
+			if strings.HasPrefix(href, "mailto:") || strings.HasPrefix(href, "../") {
 				continue
 			}
-
-			if strings.HasPrefix(href, "mailto:") {
+	
+			if !OnionURLReg.MatchString(nodeURLParsed.Host) {
 				continue
 			}
 
