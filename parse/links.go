@@ -13,8 +13,8 @@ import (
 var OnionURLWithSchemeReg *regexp.Regexp = regexp.MustCompile(`(^http://)\b[1-7a-z]{56}\.onion\b`)
 var OnionURLReg *regexp.Regexp = regexp.MustCompile(`\b[1-7a-z]{56}\.onion\b`)
 
-func IsImage(link string) bool {
-	extensions := []string{".png", ".jpg", ".jpeg", ".gif"}
+func ShouldSkipBasedOnExtension(link string) bool {
+	extensions := []string{".png", ".jpg", ".jpeg", ".gif", ".mp4", ".mp3", ".bmp"}
 	for _, extension := range extensions {
 		if strings.HasSuffix(link, extension) {
 			return true
@@ -29,7 +29,7 @@ func Links(nodeURL string, nodeBody *[]byte, links chan<- string) {
 	defer close(links);
 
 	send := func(link string) {
-		if IsImage(link) {
+		if ShouldSkipBasedOnExtension(link) {
 			return
 		}
 
@@ -83,6 +83,10 @@ func Links(nodeURL string, nodeBody *[]byte, links chan<- string) {
 			}
 	
 			if !OnionURLReg.MatchString(nodeURLParsed.Host) {
+				continue
+			}
+
+			if strings.HasPrefix(href, "mailto:") {
 				continue
 			}
 
