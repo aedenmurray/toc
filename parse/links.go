@@ -71,7 +71,7 @@ func Links(nodeURL string, nodeBody *[]byte, links chan<- string) {
 		}
 
 		for href := range hrefs {
-			isAbsoluteRef := strings.HasPrefix(href, "http://")
+			isAbsoluteRef := strings.HasPrefix(href, "http://") || strings.HasPrefix(href, "https://")
 	
 			if isAbsoluteRef {
 				if !OnionURLWithSchemeReg.MatchString(href) {
