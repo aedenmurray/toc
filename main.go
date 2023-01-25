@@ -79,7 +79,7 @@ func main() {
 	})
 
 	node.OnResponse(func(node *tor.Node) {
-		title := "(" + parse.Title(node.Buffer) + ")"
+		title := "(" + parse.Title(&node.Body) + ")"
 		fmt.Println(node.Depth, node.URL, title)
 	})
 

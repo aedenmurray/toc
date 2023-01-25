@@ -1,7 +1,6 @@
 package tor
 
 import (
-	"bytes"
 	"io"
 	"sync"
 
@@ -22,8 +21,8 @@ type Hooks struct {
 type Node struct {
 	URL       string
 	Ref       string
+	Body      []byte
 	Client    *Client
-	Buffer    *bytes.Buffer
 	WaitGroup *sync.WaitGroup
 	Hooks     *Hooks
 	Depth     uint
@@ -62,21 +61,23 @@ func (node *Node) Crawl() {
 			return
 		}
 
-		node.Buffer = new(bytes.Buffer)
-		teeReader := io.TeeReader(response.Body, node.Buffer)
+		defer response.Body.Close();
+		node.Body, err = io.ReadAll(response.Body)
+		if err != nil {
+			return
+		}
 
-		linksChannel := make(chan string)
-		go parse.Links(node.URL, teeReader, linksChannel)
+		links := make(chan string)
+		go parse.Links(node.URL, &node.Body, links)
 
-		for link := range linksChannel {
-			childDepth := node.Depth + 1
+		for link := range links {			
 			childNode := &Node{
 				URL:       link,
 				Ref:       node.URL,
 				Client:    node.Client,
 				WaitGroup: node.WaitGroup,
 				Hooks:     node.Hooks,
-				Depth:     childDepth,
+				Depth:     node.Depth + 1,
 			}
 
 			childNode.Crawl()

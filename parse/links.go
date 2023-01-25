@@ -1,8 +1,8 @@
 package parse
 
 import (
+	"bytes"
 	"fmt"
-	"io"
 	"net/url"
 	"regexp"
 	"strings"
@@ -24,73 +24,77 @@ func IsImage(link string) bool {
 	return false
 }
 
-func Links(nodeURL string, body io.Reader, channel chan<- string) {
-	defer close(channel)
+func Links(nodeURL string, nodeBody *[]byte, links chan<- string) {
+	hrefs := make(chan string)
+	defer close(links);
 
-	isOnionNode := OnionURLWithSchemeReg.MatchString(nodeURL)
-	parsedNodeURL, err := url.Parse(nodeURL)
-	if err != nil {
-		return
-	}
-
-	tokenizer := html.NewTokenizer(body)
-	sendToChannel := func(link string) {
+	send := func(link string) {
 		if IsImage(link) {
 			return
 		}
 
-		channel <- link
+		links <- strings.TrimSuffix(link, "/");
 	}
 
-	for {
-		tokenType := tokenizer.Next()
-		if tokenType == html.ErrorToken {
-			break
+	go func() {
+		defer close(hrefs)
+		reader := bytes.NewReader(*nodeBody);
+		tokenizer := html.NewTokenizer(reader);
+	
+		for {
+			tokenType := tokenizer.Next()
+			if tokenType == html.ErrorToken {
+				break
+			}
+	
+			if tokenType == html.StartTagToken {
+				token := tokenizer.Token()
+				if token.Data != "a" {
+					continue
+				}
+	
+				for _, attribute := range token.Attr {
+					if attribute.Key != "href" {
+						continue
+					}
+
+					hrefs <- attribute.Val
+				}
+			}
+		}
+	}()
+
+	func() {
+		nodeURLParsed, err := url.Parse(nodeURL);
+		if err != nil {
+			return
 		}
 
-		if tokenType == html.StartTagToken {
-			token := tokenizer.Token()
-			if token.Data != "a" {
+		for href := range hrefs {
+			isAbsoluteRef := strings.Contains(href, "//")
+	
+			if isAbsoluteRef {
+				if !OnionURLWithSchemeReg.MatchString(href) {
+					continue
+				}
+
+				send(href)
 				continue
 			}
-
-			for _, attribute := range token.Attr {
-				if attribute.Key != "href" {
-					continue
-				}
-
-				href := attribute.Val
-				isOnionURL := OnionURLWithSchemeReg.MatchString(href)
-				isAbsoluteURL := strings.Contains(href, "http://") || strings.Contains(href, "https://")
-				var toParse string
-
-				if isOnionURL && isAbsoluteURL {
-					toParse = href
-				} else if isOnionNode && !isAbsoluteURL {
-					hostWithScheme := parsedNodeURL.Scheme + "://" + parsedNodeURL.Host
-					toParse = hostWithScheme + href
-				} else {
-					continue
-				}
-
-				parsedURL, err := url.Parse(toParse)
-				if err != nil {
-					continue
-				}
-
-				trimmedPath := strings.TrimSuffix(parsedURL.Path, "/")
-				formattedLink := parsedURL.Scheme + "://" + parsedURL.Host + trimmedPath
-				sendToChannel(formattedLink)
+	
+			if !OnionURLReg.MatchString(nodeURLParsed.Host) {
+				continue
 			}
+	
+			send(nodeURLParsed.Scheme + "://" + nodeURLParsed.Host + href)
 		}
+	}()
 
-		if tokenType == html.TextToken {
-			token := tokenizer.Token()
-			onionURLs := OnionURLReg.FindAllString(token.Data, -1)
-			for _, onionURL := range onionURLs {
-				formattedLink := fmt.Sprintf("http://%s", onionURL)
-				sendToChannel(formattedLink)
-			}
+	func() {
+		onionURLs := OnionURLReg.FindAll(*nodeBody, -1);
+		for _, onionURL := range onionURLs {
+			formatted := fmt.Sprintf("http://%s", string(onionURL))
+			send(formatted)
 		}
-	}
+	}()
 }

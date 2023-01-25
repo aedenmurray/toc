@@ -11,8 +11,9 @@ import (
 var TabRegexp = regexp.MustCompile(`\t`)
 var NewLineRegexp = regexp.MustCompile(`\r?\n`)
 
-func Title(bodyBuffer *bytes.Buffer) string {
-	tokenizer := html.NewTokenizer(bodyBuffer)
+func Title(body *[]byte) string {
+	reader := bytes.NewReader(*body)
+	tokenizer := html.NewTokenizer(reader)
 
 	for {
 		tokenType := tokenizer.Next()
