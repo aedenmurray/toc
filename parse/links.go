@@ -85,6 +85,10 @@ func Links(nodeURL string, nodeBody *[]byte, links chan<- string) {
 			if !OnionURLReg.MatchString(nodeURLParsed.Host) {
 				continue
 			}
+
+			if !strings.HasPrefix(href, "/") {
+				href = "/" + href
+			}
 	
 			send(nodeURLParsed.Scheme + "://" + nodeURLParsed.Host + href)
 		}
