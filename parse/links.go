@@ -26,33 +26,33 @@ func skipBasedOnSuffix(link string) bool {
 
 func Links(nodeURL string, nodeBody *[]byte, links chan<- string) {
 	hrefs := make(chan string)
-	defer close(links);
+	defer close(links)
 
 	send := func(link string) {
 		if skipBasedOnSuffix(link) {
 			return
 		}
 
-		links <- strings.TrimSuffix(link, "/");
+		links <- strings.TrimSuffix(link, "/")
 	}
 
 	go func() {
 		defer close(hrefs)
-		reader := bytes.NewReader(*nodeBody);
-		tokenizer := html.NewTokenizer(reader);
-	
+		reader := bytes.NewReader(*nodeBody)
+		tokenizer := html.NewTokenizer(reader)
+
 		for {
 			tokenType := tokenizer.Next()
 			if tokenType == html.ErrorToken {
 				break
 			}
-	
+
 			if tokenType == html.StartTagToken {
 				token := tokenizer.Token()
 				if token.Data != "a" {
 					continue
 				}
-	
+
 				for _, attribute := range token.Attr {
 					if attribute.Key != "href" {
 						continue
@@ -65,14 +65,14 @@ func Links(nodeURL string, nodeBody *[]byte, links chan<- string) {
 	}()
 
 	func() {
-		nodeURLParsed, err := url.Parse(nodeURL);
+		nodeURLParsed, err := url.Parse(nodeURL)
 		if err != nil {
 			return
 		}
 
 		for href := range hrefs {
 			isAbsoluteRef := (strings.HasPrefix(href, "http://") || strings.HasPrefix(href, "https://"))
-	
+
 			if isAbsoluteRef {
 				if !OnionURLWithSchemeReg.MatchString(href) {
 					continue
@@ -85,7 +85,7 @@ func Links(nodeURL string, nodeBody *[]byte, links chan<- string) {
 			if strings.HasPrefix(href, "mailto:") || strings.HasPrefix(href, "../") {
 				continue
 			}
-	
+
 			if !OnionURLReg.MatchString(nodeURLParsed.Host) {
 				continue
 			}
@@ -93,13 +93,13 @@ func Links(nodeURL string, nodeBody *[]byte, links chan<- string) {
 			if !strings.HasPrefix(href, "/") {
 				href = "/" + href
 			}
-	
+
 			send(nodeURLParsed.Scheme + "://" + nodeURLParsed.Host + href)
 		}
 	}()
 
 	func() {
-		onionURLs := OnionURLReg.FindAll(*nodeBody, -1);
+		onionURLs := OnionURLReg.FindAll(*nodeBody, -1)
 		for _, onionURL := range onionURLs {
 			formatted := fmt.Sprintf("http://%s", string(onionURL))
 			send(formatted)

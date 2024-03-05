@@ -51,7 +51,7 @@ func (node *Node) Crawl() {
 		if node.Hooks.OnRequest != nil {
 			node.Hooks.OnRequest(node)
 		}
-	
+
 		if node.Skip {
 			return
 		}
@@ -61,7 +61,7 @@ func (node *Node) Crawl() {
 			return
 		}
 
-		defer response.Body.Close();
+		defer response.Body.Close()
 		node.Body, err = io.ReadAll(response.Body)
 		if err != nil {
 			return
@@ -70,7 +70,7 @@ func (node *Node) Crawl() {
 		links := make(chan string)
 		go parse.Links(node.URL, &node.Body, links)
 
-		for link := range links {			
+		for link := range links {
 			childNode := &Node{
 				URL:       link,
 				Ref:       node.URL,
